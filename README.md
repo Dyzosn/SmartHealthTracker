@@ -6,9 +6,9 @@ This is a Windows Forms desktop app we built for tracking your daily nutrition, 
 
 - **Course**: 31927/32998 - Applications Development with .NET
 - **Due Date**: Friday, 17 October 2025
-- **Framework**: .NET 7.0+ with C# Windows Forms
-- **Database**: SQLite with Entity Framework Core
-- **External API**: Edamam Nutrition Analysis API
+- **Framework**: .NET 9.0 with C# Windows Forms
+- **Database**: SQLite with Entity Framework Core 9.0
+- **External API**: USDA FoodData Central API
 - **Testing**: NUnit
 
 ## Team Members
@@ -29,138 +29,404 @@ Responsibilities: Writing calculator classes, implementing interfaces, delegates
 
 ### Core Features (6/6 Required)
 1. **User Authentication** - Login and registration system
-2. **Meal Tracker** - Log meals with nutrition data from Edamam API
+2. **Meal Tracker** - Log meals with nutrition data from USDA FoodData Central API
 3. **Exercise Logger** - Track workouts with calorie burn calculations
 4. **Health Metrics Monitoring** - Record weight, blood pressure, heart rate, blood sugar
 5. **Goal Management** - Set and track fitness/health goals with progress monitoring
-6. **Reports & Analytics** - Visual charts and progress reports
+6. **Reports & Analytics** - Visual charts showing trends (Pie, Bar, Line charts)
 
-### Bonus Features (3/5 Implemented)
-- **Entity Framework + SQLite** - Database persistence
-- **External API Integration** - Edamam Nutrition Analysis API
-- **Advanced UI** - Charts with System.Windows.Forms.DataVisualization
+### Bonus Features (3/5 for Bonus Marks)
+- Entity Framework Core 9.0 with Code-First approach and SQLite
+- External API Integration with USDA FoodData Central
+- Advanced Data Visualisation with multiple chart types
+
+## Tech Stack
+
+**Framework & Language**
+- .NET 9.0
+- C# 13
+- Windows Forms
+
+**Database**
+- SQLite
+- Entity Framework Core 9.0
+- Code-First approach with migrations
+
+**External APIs**
+- USDA FoodData Central API (free, public domain)
+
+**Testing**
+- NUnit framework
+- 5+ unit tests covering calculators and validation
+
+**Data Visualisation**
+- System.Windows.Forms.DataVisualization
+- Pie charts, bar charts, line charts
+
+**Additional Libraries**
+- Newtonsoft.Json for JSON parsing
+- HttpClient for API requests
+
+## Installation
+
+### Prerequisites
+- Windows 10 or Windows 11
+- Visual Studio 2022 or later
+- .NET 9.0 SDK (included with Visual Studio 2022)
+- Internet connection for NuGet packages and API access
+
+### Setup Instructions
+
+1. Extract the project folder
+2. Open `HealthTrackerApp.sln` in Visual Studio 2022
+3. Restore NuGet packages (automatic on first build)
+4. Build the solution (Ctrl+Shift+B)
+5. Run the application (F5)
+6. Database will be created automatically on first run
+
+### NuGet Packages
+
+The following packages will be restored automatically:
+
+```
+Microsoft.EntityFrameworkCore.Sqlite (9.0.0)
+Microsoft.EntityFrameworkCore.Tools (9.0.0)
+Microsoft.EntityFrameworkCore.Design (9.0.0)
+Newtonsoft.Json (13.0.3)
+NUnit (4.0.1)
+NUnit3TestAdapter (4.5.0)
+Microsoft.NET.Test.Sdk (17.8.0)
+```
+
+## API Configuration
+
+This project uses the USDA FoodData Central API for nutritional data. The API is free and provides access to over 300,000 foods with comprehensive nutrition information.
+
+**API Details:**
+- Provider: U.S. Department of Agriculture
+- Cost: Free (public domain government data)
+- Rate Limit: 1,000 requests per hour per IP address
+- Documentation: https://fdc.nal.usda.gov/api-guide.html
+
+**API Key:**
+
+The API key is stored in `Utilities/Constants.cs`:
+
+```csharp
+public const string USDA_API_KEY = "rScicIaOkCCGhpNbeD1T7eEAxd0G8EV2uQ7W6A5D";
+```
+
+**Note:** In production applications, API keys should be stored in environment variables or secure configuration. For this project, the key is included in source code for ease of setup and testing.
+
+**How It Works:**
+
+1. User searches for food (e.g., "chicken breast")
+2. App queries USDA API with search term
+3. Results display with complete nutrition data
+4. Selected foods are cached locally in SQLite database
+5. Future searches check local database first to reduce API calls
+
+**Important:** The USDA API returns nutrition values per serving size (e.g., per 284g chicken breast). Our application automatically converts all values to per 100g for consistency and comparability across different foods.
 
 ## Project Structure
 
 ```
-SmartHealthTracker/
-├── HealthTrackerApp/           # Main Windows Forms project
-│   ├── Models/                 # Entity classes
-│   ├── Data/                   # DbContext and database
-│   ├── BusinessLogic/          # Core logic (calculators, interfaces)
-│   ├── Services/               # API and data services
-│   ├── Forms/                  # UI forms
-│   ├── Utilities/              # Helper classes
-│   └── Resources/              # Images and icons
-└── HealthTrackerApp.Tests/     # NUnit test project
+HealthTrackerApp/
+├── Models/                          # Entity classes
+│   ├── User.cs
+│   ├── Meal.cs
+│   ├── Food.cs
+│   ├── MealFood.cs
+│   ├── Exercise.cs
+│   ├── HealthMetricRecord.cs
+│   ├── Goal.cs
+│   └── Enums/
+│       ├── MealType.cs
+│       ├── ExerciseCategory.cs
+│       ├── IntensityLevel.cs
+│       └── GoalType.cs
+│
+├── Data/                            # Database context
+│   ├── HealthTrackerContext.cs
+│   └── DbInitializer.cs
+│
+├── BusinessLogic/                   # Core logic
+│   ├── Calculators/
+│   │   ├── BMICalculator.cs
+│   │   ├── CalorieCalculator.cs
+│   │   ├── CalorieBurnCalculator.cs
+│   │   └── MacroDistributionCalculator.cs
+│   ├── HealthMetrics/               # Polymorphism implementation
+│   │   ├── HealthMetric.cs          # Abstract base class
+│   │   ├── WeightMetric.cs
+│   │   ├── BloodPressureMetric.cs
+│   │   ├── HeartRateMetric.cs
+│   │   └── BloodSugarMetric.cs
+│   ├── Managers/
+│   │   └── GoalManager.cs           # Delegates and Events
+│   └── Interfaces/
+│       ├── ITrackable.cs
+│       ├── ICalculatable.cs
+│       └── IValidatable.cs
+│
+├── Services/                        # API and data services
+│   ├── USDAFoodDataService.cs
+│   ├── MealService.cs
+│   ├── ExerciseService.cs
+│   ├── HealthMetricService.cs
+│   └── GoalService.cs
+│
+├── Forms/                           # User interface
+│   ├── LoginForm.cs
+│   ├── DashboardForm.cs
+│   ├── MealTrackerForm.cs
+│   ├── ExerciseLoggerForm.cs
+│   ├── HealthMetricsForm.cs
+│   ├── GoalsProgressForm.cs
+│   └── ReportsAnalyticsForm.cs
+│
+├── Utilities/
+│   ├── Constants.cs
+│   └── ChartHelper.cs
+│
+├── Resources/
+│   └── Images/
+│
+└── HealthTrackerApp.Tests/         # Unit tests
+    ├── CalculatorTests.cs
+    ├── ValidationTests.cs
+    └── GoalManagerTests.cs
 ```
 
-## Technologies Used
+## Database Schema
 
-- **C# .NET 7.0+**
-- **Windows Forms** for UI
-- **Entity Framework Core 7.0+** for database ORM
-- **SQLite** for local database storage
-- **Edamam API** for nutrition data
-- **NUnit** for unit testing
-- **System.Windows.Forms.DataVisualization** for charts
+**Entities:**
+- Users
+- Meals
+- Foods
+- MealFoods (junction table)
+- Exercises
+- HealthMetricRecords
+- Goals
 
-## Setup Instructions
+**Relationships:**
+- User has many Meals (1:N)
+- User has many Exercises (1:N)
+- User has many HealthMetricRecords (1:N)
+- User has many Goals (1:N)
+- Meals and Foods have Many-to-Many relationship through MealFoods
 
-### Prerequisites
-- Visual Studio 2022 (Community Edition or higher)
-- .NET 7.0 SDK or later
-- Git for version control
+**Database File:** `HealthTracker.db` (SQLite, created automatically)
 
-### Installation Steps
+## Key Technical Features
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Dyzosn/SmartHealthTracker.git
-   cd SmartHealthTracker
-   ```
+### Object-Oriented Programming
 
-2. **Open in Visual Studio**
-   - Open `HealthTrackerApp.sln` in Visual Studio 2022
+**Polymorphism:**
+- Abstract base class `HealthMetric`
+- Derived classes: `WeightMetric`, `BloodPressureMetric`, `HeartRateMetric`, `BloodSugarMetric`
+- Each override `Display()` and `Validate()` methods
 
-3. **Install NuGet Packages**
-   Packages will be restored automatically, but if needed:
-   ```
-   - Microsoft.EntityFrameworkCore.Sqlite (7.0+)
-   - Microsoft.EntityFrameworkCore.Tools (7.0+)
-   - Newtonsoft.Json (for API calls)
-   - NUnit (3.13+)
-   - NUnit3TestAdapter
-   ```
+**Interfaces:**
+- `ICalculatable` - For classes with calculation logic
+- `ITrackable` - For trackable entities
+- `IValidatable` - For input validation
 
-4. **Database Setup**
-   The database will be created automatically on first run.
-   
-   Alternatively, use Package Manager Console:
-   ```
-   Add-Migration InitialCreate
-   Update-Database
-   ```
+**Delegates and Events:**
+- `GoalManager` class uses delegates and events
+- Fires `OnGoalAchieved` event when user completes a goal
+- Forms can subscribe to these events for notifications
 
-5. **API Key Configuration**
-   - Register for a free Edamam API key at: https://developer.edamam.com/
-   - Update the API key in `Utilities/Constants.cs`:
-     ```csharp
-     public const string EDAMAM_APP_ID = "your_app_id";
-     public const string EDAMAM_APP_KEY = "your_app_key";
-     ```
+**Generic Collections:**
+- `List<T>` for storing collections of entities
+- `Dictionary<TKey, TValue>` for lookup operations
+- Used throughout the application
 
-6. **Run the Application**
-   - Press F5 or click "Start" in Visual Studio
-   - Default login credentials will be seeded (check DbInitializer.cs)
+**LINQ with Lambda Expressions:**
+- All database queries use LINQ instead of raw SQL
+- Example: `meals.Where(m => m.Date == today).Sum(m => m.Calories)`
+- Complex queries with grouping, ordering, and projection
 
-## How to Use
+### Entity Framework Core
 
-1. **Login/Register**: Create a new account or login with existing credentials
-2. **Dashboard**: View your daily summary and quick stats
-3. **Meal Tracker**: Search foods using Edamam API and log your meals
-4. **Exercise Logger**: Record your workouts and view calories burned
-5. **Health Metrics**: Track vital measurements (weight, BP, heart rate)
-6. **Goals**: Set fitness goals and monitor your progress
-7. **Reports**: View charts and analytics of your health data
+**Approach:** Code-First with migrations
 
-## Testing
+**Key Features:**
+- DbContext: `HealthTrackerContext`
+- 7 DbSet properties for entities
+- Fluent API for relationship configuration
+- Automatic database creation
+- Seed data for initial foods
 
-Run NUnit tests from Visual Studio Test Explorer:
-- Right-click on `HealthTrackerApp.Tests` project
-- Select "Run Tests"
+**Common Commands:**
+```powershell
+Add-Migration <MigrationName>
+Update-Database
+Remove-Migration
+```
 
-## Key Technical Implementations
+### External API Integration
 
-- **Polymorphism**: HealthMetric abstract class with derived classes (WeightMetric, BloodPressureMetric, etc.)
-- **Interfaces**: ITrackable, ICalculatable, IValidatable
-- **Delegates & Events**: GoalManager with event handling for goal achievements
-- **LINQ Queries**: Complex data queries for reports and analytics
-- **Generics**: Generic collections for data management
-- **Entity Framework**: Code-first approach with migrations
+**Service:** `USDAFoodDataService.cs`
+
+**Functionality:**
+- Search foods by name
+- Retrieve detailed nutrition information
+- Parse JSON responses
+- Map API data to Food entities
+- Convert serving-based values to per 100g
+- Error handling for network issues
+
+**Conversion Logic:**
+
+The USDA API returns nutrition per serving size. For example, a chicken breast might have 20.42g protein per 284g serving. We convert this to per 100g:
+
+```csharp
+double proteinPer100g = (20.42 / 284) * 100; // Result: 7.19g per 100g
+```
+
+This ensures all foods are standardised and comparable.
+
+## Running Tests
+
+1. Open Test Explorer (View > Test Explorer)
+2. Click "Run All" to execute all tests
+3. Tests cover:
+   - BMI calculations
+   - Calorie calculations from macronutrients
+   - Goal completion logic
+   - Input validation
+   - Calculator accuracy
+
+All tests should pass. If any fail, check the test output for details.
+
+## Usage
+
+### First Time Setup
+
+1. Run the application
+2. Click "Register" on login screen
+3. Create account with username, email, and password
+4. Enter basic information (date of birth, height, gender)
+5. Login with your credentials
+
+### Adding a Meal
+
+1. Open Meal Tracker
+2. Click "Add Meal"
+3. Search for food using USDA database
+4. Select food from results
+5. Enter portion size in grams
+6. Add to meal
+7. Nutrition calculated automatically
+
+### Logging Exercise
+
+1. Open Exercise Logger
+2. Select exercise type
+3. Enter duration and intensity
+4. Calories burned calculated automatically
+5. Save to database
+
+### Recording Health Metrics
+
+1. Open Health Metrics
+2. Select metric type (Weight, Blood Pressure, Heart Rate, Blood Sugar)
+3. Enter measurement values
+4. View historical data and trends in charts
+
+### Setting Goals
+
+1. Open Goals & Progress
+2. Create new goal
+3. Set target value and deadline
+4. Track progress automatically
+5. Receive notification when goal achieved
+
+### Viewing Reports
+
+1. Open Reports & Analytics
+2. Select date range
+3. View nutrition breakdown (pie chart)
+4. View exercise summary (bar chart)
+5. View weight trends (line chart)
+
+## Troubleshooting
+
+**Database Issues:**
+- Delete `HealthTracker.db` and restart application to recreate
+- Check Package Manager Console for migration errors
+
+**API Issues:**
+- Verify internet connection
+- Check API key in `Constants.cs`
+- Rate limit: 1,000 requests/hour (wait 1 hour if exceeded)
+- Search local database if API unavailable
+
+**Build Issues:**
+- Clean solution (Build > Clean Solution)
+- Restore NuGet packages
+- Rebuild solution
+
+**Missing References:**
+- Right-click solution > Restore NuGet Packages
+- Ensure .NET 9.0 SDK is installed
+
+## Code Conventions
+
+**Comment Style:**
+- All code comments use British English spelling
+- Examples: initialise, organise, analyse, colour, behaviour
+
+**Naming Conventions:**
+- Classes: PascalCase (BMICalculator, HealthMetric)
+- Methods: PascalCase (CalculateTotalCalories, ValidateInput)
+- Properties: PascalCase (TotalCalories, MealDate)
+- Private fields: camelCase with underscore (_httpClient, _context)
+- Constants: UPPER_SNAKE_CASE (DEFAULT_CALORIE_TARGET)
 
 ## Development Notes
 
-- Database file: `HealthTracker.db` (SQLite) - created in application directory
-- All dates stored in UTC, displayed in local time
-- API calls are rate-limited (check Edamam free tier limits)
-- Charts auto-refresh when data changes
+### Food Data Standardisation
 
-## Contributing (Team Workflow)
+All foods in the database store nutrition per 100g, regardless of their original serving size from the API. This allows:
+- Easy comparison between foods
+- Simple portion calculations
+- Consistent user experience
 
-### Branch Strategy
-- `main` - Production-ready code (final submission)
-- `development` - Integration branch for merging features
-- `naufal-database-setup` - Database and core models (Naufal)
-- `stanley-ui-forms` - UI forms and design (Stanley)
-- `felix-business-logic` - Calculators and business logic (Felix)
+When a user logs a meal with 150g of chicken:
+```
+Protein per 100g: 7.19g
+User portion: 150g
+Calculation: 7.19 * (150/100) = 10.79g protein
+```
 
-### Workflow
-1. Create feature branch from `development`
-2. Commit changes with meaningful messages
-3. Push to your branch
-4. Create Pull Request to `development`
-5. After testing, merge `development` to `main`
+### Branch Structure
 
-**Last Updated**: October 2025  
-**Version**: 1.0.0
+- `main` - Stable releases
+- `development` - Integration branch
+- `naufal-database-setup` - Database and API work
+- `stanley-ui-forms` - UI development
+- `felix-business-logic` - Business logic and testing
+
+## GitHub Repository
+
+https://github.com/Dyzosn/SmartHealthTracker
+
+## Assignment Requirements
+
+**Core Requirements Met:**
+- Polymorphism with abstract class and derived classes
+- Interfaces (ICalculatable, ITrackable, IValidatable)
+- LINQ queries with lambda expressions
+- Generic collections (List, Dictionary)
+- Delegates and events
+- High cohesion, low coupling architecture
+- Unit tests with NUnit
+
+**Bonus Features Implemented:**
+- Entity Framework Core 9.0
+- External API integration
+- Advanced data visualisation
+
+**The Total Marks We Targeted:** 35 + 3 bonus = 38/40 (eventually = 35/35)
