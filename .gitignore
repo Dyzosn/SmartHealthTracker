@@ -71,5 +71,7 @@ TestResults/
 *.db-shm
 *.db-wal
 
-# Note: We are tracking .db files and App.config for assignment submission
-# This allows tutors to run the application with seed data without additional setup
+# Note: We are tracking the main database file (HealthTracker.db) for assignment submission
+# This allows tutors to run the application with seed data and test user without additional setup
+# The database is created and seeded via Entity Framework migrations on first run
+# Configuration is managed via Constants.cs (modern .NET 9.0 approach, not App.config)
