@@ -1,6 +1,6 @@
 # Smart Health Tracker & Wellness Manager
 
-This is a Windows Forms desktop app we built for tracking your daily nutrition, workouts, health measurements, and fitness goals all in one place. Think of it like a personal health diary but with actual data analysis and charts.
+This is a Windows Forms desktop app we built for tracking your daily nutrition, workouts, health measurements, and fitness goals all in one place. Think of it like a personal health diary but with actual data analysis and statistics.
 
 ## Project Information
 
@@ -19,7 +19,7 @@ Responsibilities: Database design, Entity Framework setup, polymorphism implemen
 
 **Stanley Ng** - 14639482  
 Role: UI/UX Developer  
-Responsibilities: Designing and building all the forms, implementing charts and visualisations, making sure the interface is actually usable.
+Responsibilities: Designing and building all the forms, implementing data visualisations and statistical displays, making sure the interface is actually usable.
 
 **Felixson Wongso** - 14578850  
 Role: Business Logic Specialist  
@@ -31,14 +31,14 @@ Responsibilities: Writing calculator classes, implementing interfaces, delegates
 1. **User Authentication** - Login and registration system
 2. **Meal Tracker** - Log meals with nutrition data from USDA FoodData Central API
 3. **Exercise Logger** - Track workouts with calorie burn calculations
-4. **Health Metrics Monitoring** - Record weight, blood pressure, heart rate, blood sugar
+4. **Health Metrics Monitoring** - Record weight, blood pressure, heart rate, blood sugar with statistical analysis
 5. **Goal Management** - Set and track fitness/health goals with progress monitoring
-6. **Reports & Analytics** - Visual charts showing trends (Pie, Bar, Line charts)
+6. **Reports & Analytics** - Statistical summaries and data tables showing trends
 
 ### Bonus Features (3/5 for Bonus Marks)
 - Entity Framework Core 9.0 with Code-First approach and SQLite
 - External API Integration with USDA FoodData Central
-- Advanced Data Visualisation with multiple chart types
+- Advanced Data Analysis with statistical displays
 
 ## Tech Stack
 
@@ -60,8 +60,9 @@ Responsibilities: Writing calculator classes, implementing interfaces, delegates
 - 5+ unit tests covering calculators and validation
 
 **Data Visualisation**
-- System.Windows.Forms.DataVisualization
-- Pie charts, bar charts, line charts
+- DataGridView for historical data
+- Labels for statistical displays
+- ProgressBar for visual indicators
 
 **Additional Libraries**
 - Newtonsoft.Json for JSON parsing
@@ -186,8 +187,7 @@ HealthTrackerApp/
 │   └── ReportsAnalyticsForm.cs
 │
 ├── Utilities/
-│   ├── Constants.cs
-│   └── ChartHelper.cs
+│   └── Constants.cs
 │
 ├── Resources/
 │   └── Images/
@@ -333,7 +333,7 @@ All tests should pass. If any fail, check the test output for details.
 1. Open Health Metrics
 2. Select metric type (Weight, Blood Pressure, Heart Rate, Blood Sugar)
 3. Enter measurement values
-4. View historical data and trends in charts
+4. View historical data and statistical analysis in DataGridView
 
 ### Setting Goals
 
@@ -347,9 +347,9 @@ All tests should pass. If any fail, check the test output for details.
 
 1. Open Reports & Analytics
 2. Select date range
-3. View nutrition breakdown (pie chart)
-4. View exercise summary (bar chart)
-5. View weight trends (line chart)
+3. View nutrition breakdown (statistical summary)
+4. View exercise summary (data tables)
+5. View weight trends (DataGridView with statistics)
 
 ## Troubleshooting
 
@@ -427,6 +427,6 @@ https://github.com/Dyzosn/SmartHealthTracker
 **Bonus Features Implemented:**
 - Entity Framework Core 9.0
 - External API integration
-- Advanced data visualisation
+- Advanced data analysis and statistical displays
 
 **The Total Marks We Targeted:** 35 + 3 bonus = 38/40 (eventually = 35/35)
