@@ -78,12 +78,33 @@ Responsibilities: Writing calculator classes, implementing interfaces, delegates
 
 ### Setup Instructions
 
-1. Extract the project folder
-2. Open `HealthTrackerApp.sln` in Visual Studio 2022
-3. Restore NuGet packages (automatic on first build)
-4. Build the solution (Ctrl+Shift+B)
-5. Run the application (F5)
-6. Database will be created automatically on first run
+1. **Clone or extract the project**
+```bash
+   git clone https://github.com/Dyzosn/SmartHealthTracker.git
+   # Or extract from ZIP file
+```
+
+2. **Open solution in Visual Studio 2022**
+   - Open `HealthTrackerApp.sln`
+
+3. **Restore NuGet packages** (automatic on first build)
+   - Build → Rebuild Solution (Ctrl+Shift+B)
+
+4. **Run the application** (F5)
+   - **Database is included** - Pre-configured with schema and 10 seeded foods
+   - **Test user ready** - Username: `testuser`, Password: `test123`
+   - Database location: `bin/Debug/net9.0-windows/HealthTracker.db` (copied from repository on build)
+
+5. **Start using the app**
+   - Login with test user
+   - Try adding health metrics, weight tracking, or exploring the dashboard
+
+### Important Notes
+
+- **Database file IS included in repository** - For tutor convenience, the database is pre-configured with seed data and test user
+- **No migration setup needed** - Database schema already created, just build and run
+- **USDA API Key included** - Already configured in `Constants.cs`, no additional setup needed
+- **Australian locale** - Application uses en-AU culture (decimal separator: `.`, date format: `dd/MM/yyyy`)
 
 ### NuGet Packages
 
