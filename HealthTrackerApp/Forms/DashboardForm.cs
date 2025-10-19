@@ -168,9 +168,12 @@ namespace HealthTrackerApp.Forms
         // Button click handlers for navigation to other forms
         private void btnMealTracker_Click(object sender, EventArgs e)
         {
-            // Open Meal Tracker form
-            // Implementation will be done by Member 2
-            MessageBox.Show("Meal Tracker - To be implemented by Member 2", "Navigation");
+            MealTrackerForm mealTracker = new MealTrackerForm(_currentUser);
+            mealTracker.ShowDialog();
+
+            // Refresh dashboard after returning
+            LoadDailySummary();
+            LoadWeeklySummary();
         }
 
         private void btnExerciseLogger_Click(object sender, EventArgs e)
@@ -200,9 +203,8 @@ namespace HealthTrackerApp.Forms
 
         private void btnReports_Click(object sender, EventArgs e)
         {
-            // Open Reports & Analytics form
-            // Implementation will be done by Member 2
-            MessageBox.Show("Reports & Analytics - To be implemented by Member 2", "Navigation");
+            ReportsAnalyticsForm reports = new ReportsAnalyticsForm(_currentUser);
+            reports.ShowDialog();
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
