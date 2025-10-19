@@ -73,7 +73,7 @@ namespace HealthTrackerApp.Forms
             }
         }
 
-        // Create new user account
+        // Open registration form for new user
         private void btnRegister_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtUsername.Text))
@@ -103,23 +103,19 @@ namespace HealthTrackerApp.Forms
                     return;
                 }
 
-                // Create new user with default values
-                var newUser = new User
+                // Open registration form to collect full user details
+                RegistrationForm registrationForm = new RegistrationForm(
+                    txtUsername.Text,
+                    txtPassword.Text
+                );
+
+                if (registrationForm.ShowDialog() == DialogResult.OK)
                 {
-                    Username = txtUsername.Text,
-                    Password = txtPassword.Text,
-                    Email = $"{txtUsername.Text}@healthtracker.com",
-                    DateOfBirth = new DateTime(1990, 1, 1),
-                    Height = 1.75,
-                    Gender = "Not specified",
-                    CreatedDate = DateTime.Now
-                };
-
-                _context.Users.Add(newUser);
-                _context.SaveChanges();
-
-                MessageBox.Show("Registration successful! You can now login.", "Success");
-                txtPassword.Clear();
+                    // Registration completed successfully
+                    txtPassword.Clear();
+                    txtUsername.Clear();
+                    txtUsername.Focus();
+                }
             }
             catch (Exception ex)
             {
