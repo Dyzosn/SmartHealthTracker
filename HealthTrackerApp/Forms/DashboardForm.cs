@@ -49,43 +49,51 @@ namespace HealthTrackerApp.Forms
             {
                 double weight = latestWeight.WeightKg.Value;
                 double height = _currentUser.Height;
-                double bmi = weight / (height * height);
 
-                // Determine BMI category and colour based on WHO standards
-                string category;
+                // Calculate BMI using calculator class for consistent validation
+                var bmiCalculator = new BusinessLogic.Calculators.BMICalculator
+                {
+                    WeightKg = weight,
+                    HeightM = height
+                };
+
+                double bmi = bmiCalculator.Calculate();
+                string category = bmiCalculator.GetCategory();
+                string colourName = bmiCalculator.GetCategoryColour();
+
+                // Map category colour name to display colour
                 System.Drawing.Color categoryColour;
-
-                if (bmi < 18.5)
+                switch (colourName)
                 {
-                    category = "Underweight";
-                    categoryColour = System.Drawing.Color.Blue;
-                }
-                else if (bmi < 25.0)
-                {
-                    category = "Normal";
-                    categoryColour = System.Drawing.Color.Green;
-                }
-                else if (bmi < 30.0)
-                {
-                    category = "Overweight";
-                    categoryColour = System.Drawing.Color.Orange;
-                }
-                else
-                {
-                    category = "Obese";
-                    categoryColour = System.Drawing.Color.Red;
+                    case "Blue":
+                        categoryColour = System.Drawing.Color.Blue;
+                        break;
+                    case "Green":
+                        categoryColour = System.Drawing.Color.Green;
+                        break;
+                    case "Orange":
+                        categoryColour = System.Drawing.Color.Orange;
+                        break;
+                    case "Red":
+                        categoryColour = System.Drawing.Color.Red;
+                        break;
+                    default:
+                        categoryColour = System.Drawing.Color.Black;
+                        break;
                 }
 
-                // Display BMI value and category in separate labels
+                // Display BMI value and category with appropriate colour
                 lblBMIValue.Text = $"BMI: {bmi:F1}";
                 lblBMICategory.Text = category;
                 lblBMICategory.ForeColor = categoryColour;
-                lblCurrentWeight.Text = $"Weight: {weight:F1} kg";
+                lblCurrentWeight.Text = $"Current Weight: {weight:F1} kg";
             }
             else
             {
+                // No weight data available
                 lblBMIValue.Text = "BMI: N/A";
-                lblBMICategory.Text = "No weight data";
+                lblBMICategory.Text = "No weight data recorded";
+                lblBMICategory.ForeColor = System.Drawing.Color.Gray;
                 lblCurrentWeight.Text = "Weight: N/A";
             }
         }
