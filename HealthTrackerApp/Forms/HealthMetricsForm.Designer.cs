@@ -46,9 +46,8 @@
             groupBoxHistory.SuspendLayout();
             groupBoxTrends.SuspendLayout();
             SuspendLayout();
-            // 
+            
             // cboMetricType
-            // 
             cboMetricType.DropDownStyle = ComboBoxStyle.DropDownList;
             cboMetricType.FormattingEnabled = true;
             cboMetricType.Location = new Point(143, 37);
@@ -56,17 +55,15 @@
             cboMetricType.Name = "cboMetricType";
             cboMetricType.Size = new Size(255, 33);
             cboMetricType.TabIndex = 1;
-            // 
+            
             // dtpRecordedDate
-            // 
             dtpRecordedDate.Location = new Point(143, 95);
             dtpRecordedDate.Margin = new Padding(4, 5, 4, 5);
             dtpRecordedDate.Name = "dtpRecordedDate";
             dtpRecordedDate.Size = new Size(327, 31);
             dtpRecordedDate.TabIndex = 3;
-            // 
+            
             // lblWeight
-            // 
             lblWeight.AutoSize = true;
             lblWeight.Location = new Point(21, 167);
             lblWeight.Margin = new Padding(4, 0, 4, 0);
@@ -74,17 +71,15 @@
             lblWeight.Size = new Size(107, 25);
             lblWeight.TabIndex = 4;
             lblWeight.Text = "Weight (kg):";
-            // 
+            
             // txtWeight
-            // 
             txtWeight.Location = new Point(214, 162);
             txtWeight.Margin = new Padding(4, 5, 4, 5);
             txtWeight.Name = "txtWeight";
             txtWeight.Size = new Size(141, 31);
             txtWeight.TabIndex = 5;
-            // 
+            
             // lblSystolic
-            // 
             lblSystolic.AutoSize = true;
             lblSystolic.Location = new Point(21, 167);
             lblSystolic.Margin = new Padding(4, 0, 4, 0);
@@ -92,17 +87,15 @@
             lblSystolic.Size = new Size(146, 25);
             lblSystolic.TabIndex = 6;
             lblSystolic.Text = "Systolic (mmHg):";
-            // 
+            
             // txtSystolic
-            // 
             txtSystolic.Location = new Point(214, 162);
             txtSystolic.Margin = new Padding(4, 5, 4, 5);
             txtSystolic.Name = "txtSystolic";
             txtSystolic.Size = new Size(141, 31);
             txtSystolic.TabIndex = 7;
-            // 
+            
             // lblDiastolic
-            // 
             lblDiastolic.AutoSize = true;
             lblDiastolic.Location = new Point(21, 225);
             lblDiastolic.Margin = new Padding(4, 0, 4, 0);
@@ -110,17 +103,15 @@
             lblDiastolic.Size = new Size(154, 25);
             lblDiastolic.TabIndex = 8;
             lblDiastolic.Text = "Diastolic (mmHg):";
-            // 
+            
             // txtDiastolic
-            // 
             txtDiastolic.Location = new Point(214, 220);
             txtDiastolic.Margin = new Padding(4, 5, 4, 5);
             txtDiastolic.Name = "txtDiastolic";
             txtDiastolic.Size = new Size(141, 31);
             txtDiastolic.TabIndex = 9;
-            // 
+            
             // lblHeartRate
-            // 
             lblHeartRate.AutoSize = true;
             lblHeartRate.Location = new Point(21, 167);
             lblHeartRate.Margin = new Padding(4, 0, 4, 0);
@@ -128,17 +119,15 @@
             lblHeartRate.Size = new Size(152, 25);
             lblHeartRate.TabIndex = 10;
             lblHeartRate.Text = "Heart Rate (bpm):";
-            // 
+            
             // txtHeartRate
-            // 
             txtHeartRate.Location = new Point(214, 162);
             txtHeartRate.Margin = new Padding(4, 5, 4, 5);
             txtHeartRate.Name = "txtHeartRate";
             txtHeartRate.Size = new Size(141, 31);
             txtHeartRate.TabIndex = 11;
-            // 
+            
             // lblBloodSugar
-            // 
             lblBloodSugar.AutoSize = true;
             lblBloodSugar.Location = new Point(21, 167);
             lblBloodSugar.Margin = new Padding(4, 0, 4, 0);
@@ -146,17 +135,15 @@
             lblBloodSugar.Size = new Size(191, 25);
             lblBloodSugar.TabIndex = 12;
             lblBloodSugar.Text = "Blood Sugar (mmol/L):";
-            // 
+            
             // txtBloodSugar
-            // 
             txtBloodSugar.Location = new Point(214, 162);
             txtBloodSugar.Margin = new Padding(4, 5, 4, 5);
             txtBloodSugar.Name = "txtBloodSugar";
             txtBloodSugar.Size = new Size(141, 31);
             txtBloodSugar.TabIndex = 13;
-            // 
+            
             // txtNotes
-            // 
             txtNotes.Location = new Point(21, 283);
             txtNotes.Margin = new Padding(4, 5, 4, 5);
             txtNotes.Multiline = true;
@@ -164,9 +151,8 @@
             txtNotes.PlaceholderText = "Notes (optional)";
             txtNotes.Size = new Size(448, 97);
             txtNotes.TabIndex = 14;
-            // 
+            
             // btnSave
-            // 
             btnSave.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             btnSave.Location = new Point(21, 400);
             btnSave.Margin = new Padding(4, 5, 4, 5);
@@ -176,9 +162,8 @@
             btnSave.Text = "Save Health Metric";
             btnSave.UseVisualStyleBackColor = true;
             btnSave.Click += btnSave_Click;
-            // 
+            
             // dgvHealthMetrics
-            // 
             dgvHealthMetrics.AllowUserToAddRows = false;
             dgvHealthMetrics.AllowUserToDeleteRows = false;
             dgvHealthMetrics.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -189,9 +174,8 @@
             dgvHealthMetrics.RowHeadersWidth = 62;
             dgvHealthMetrics.Size = new Size(786, 333);
             dgvHealthMetrics.TabIndex = 17;
-            // 
+            
             // dgvTrendData
-            // 
             dgvTrendData.AllowUserToAddRows = false;
             dgvTrendData.AllowUserToDeleteRows = false;
             dgvTrendData.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -202,9 +186,8 @@
             dgvTrendData.RowHeadersWidth = 62;
             dgvTrendData.Size = new Size(743, 417);
             dgvTrendData.TabIndex = 22;
-            // 
+            
             // lblTotalRecords
-            // 
             lblTotalRecords.AutoSize = true;
             lblTotalRecords.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             lblTotalRecords.Location = new Point(21, 392);
@@ -213,9 +196,8 @@
             lblTotalRecords.Size = new Size(147, 25);
             lblTotalRecords.TabIndex = 18;
             lblTotalRecords.Text = "Total Records: 0";
-            // 
+            
             // lblLatestWeight
-            // 
             lblLatestWeight.AutoSize = true;
             lblLatestWeight.Location = new Point(21, 425);
             lblLatestWeight.Margin = new Padding(4, 0, 4, 0);
@@ -223,9 +205,8 @@
             lblLatestWeight.Size = new Size(160, 25);
             lblLatestWeight.TabIndex = 19;
             lblLatestWeight.Text = "Latest Weight: N/A";
-            // 
+            
             // lblLatestBP
-            // 
             lblLatestBP.AutoSize = true;
             lblLatestBP.Location = new Point(21, 458);
             lblLatestBP.Margin = new Padding(4, 0, 4, 0);
@@ -233,9 +214,8 @@
             lblLatestBP.Size = new Size(124, 25);
             lblLatestBP.TabIndex = 20;
             lblLatestBP.Text = "Latest BP: N/A";
-            // 
+            
             // lblStatistics
-            // 
             lblStatistics.Font = new Font("Consolas", 9F);
             lblStatistics.Location = new Point(21, 475);
             lblStatistics.Margin = new Padding(4, 0, 4, 0);
@@ -243,9 +223,8 @@
             lblStatistics.Size = new Size(743, 550);
             lblStatistics.TabIndex = 23;
             lblStatistics.Text = "Select a metric type to view statistics";
-            // 
+            
             // lblMetricTypeLabel
-            // 
             lblMetricTypeLabel.AutoSize = true;
             lblMetricTypeLabel.Location = new Point(21, 42);
             lblMetricTypeLabel.Margin = new Padding(4, 0, 4, 0);
@@ -253,9 +232,8 @@
             lblMetricTypeLabel.Size = new Size(107, 25);
             lblMetricTypeLabel.TabIndex = 0;
             lblMetricTypeLabel.Text = "Metric Type:";
-            // 
+            
             // lblDateLabel
-            // 
             lblDateLabel.AutoSize = true;
             lblDateLabel.Location = new Point(21, 100);
             lblDateLabel.Margin = new Padding(4, 0, 4, 0);
@@ -263,9 +241,8 @@
             lblDateLabel.Size = new Size(53, 25);
             lblDateLabel.TabIndex = 2;
             lblDateLabel.Text = "Date:";
-            // 
+            
             // groupBoxInput
-            // 
             groupBoxInput.Controls.Add(lblMetricTypeLabel);
             groupBoxInput.Controls.Add(cboMetricType);
             groupBoxInput.Controls.Add(lblDateLabel);
@@ -290,9 +267,8 @@
             groupBoxInput.TabIndex = 16;
             groupBoxInput.TabStop = false;
             groupBoxInput.Text = "Log New Metric";
-            // 
+            
             // groupBoxHistory
-            // 
             groupBoxHistory.Controls.Add(dgvHealthMetrics);
             groupBoxHistory.Controls.Add(lblTotalRecords);
             groupBoxHistory.Controls.Add(lblLatestWeight);
@@ -305,9 +281,8 @@
             groupBoxHistory.TabIndex = 21;
             groupBoxHistory.TabStop = false;
             groupBoxHistory.Text = "All Health Metrics";
-            // 
+            
             // groupBoxTrends
-            // 
             groupBoxTrends.Controls.Add(dgvTrendData);
             groupBoxTrends.Controls.Add(lblStatistics);
             groupBoxTrends.Location = new Point(886, 33);
@@ -318,9 +293,8 @@
             groupBoxTrends.TabIndex = 24;
             groupBoxTrends.TabStop = false;
             groupBoxTrends.Text = "Trends & Statistics (Last 30 Days)";
-            // 
+            
             // HealthMetricsForm
-            // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1700, 1083);
