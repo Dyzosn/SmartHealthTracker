@@ -189,9 +189,13 @@ namespace HealthTrackerApp.Forms
 
         private void btnExerciseLogger_Click(object sender, EventArgs e)
         {
-            // Open Exercise Logger form
-            // Implementation will be done by Member 3
-            MessageBox.Show("Exercise Logger - To be implemented by Member 3", "Navigation");
+            // Open Exercise Logger form as modal dialogue
+            ExerciseLoggerForm exerciseLogger = new ExerciseLoggerForm(_currentUser);
+            exerciseLogger.ShowDialog();
+
+            // Refresh dashboard after returning
+            LoadDailySummary();
+            LoadWeeklySummary();
         }
 
         private void btnHealthMetrics_Click(object sender, EventArgs e)
@@ -207,9 +211,13 @@ namespace HealthTrackerApp.Forms
 
         private void btnGoals_Click(object sender, EventArgs e)
         {
-            // Open Goals Progress form
-            // Implementation will be done by Member 3
-            MessageBox.Show("Goals Progress - To be implemented by Member 3", "Navigation");
+            // Open Goals Progress form as modal dialogue
+            GoalsProgressForm goalsProgress = new GoalsProgressForm(_currentUser);
+            goalsProgress.ShowDialog();
+
+            // Refresh dashboard after returning
+            LoadBMIStatus();
+            LoadDailySummary();
         }
 
         private void btnReports_Click(object sender, EventArgs e)

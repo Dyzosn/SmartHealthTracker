@@ -93,11 +93,14 @@ namespace HealthTrackerApp.Services
         // Updates an existing exercise record
         public void UpdateExercise(Exercise exercise)
         {
+            // Get user's current weight from health metrics
+            double userWeight = GetUserWeight(exercise.UserId);
+
             // Recalculate calories if duration, intensity, or weight changed
             var calculator = new CalorieBurnCalculator
             {
                 DurationMinutes = exercise.DurationMinutes,
-                WeightKg = 70, // Default weight - should be from user profile
+                WeightKg = userWeight,
                 Intensity = exercise.Intensity
             };
 
@@ -105,6 +108,18 @@ namespace HealthTrackerApp.Services
 
             _context.Exercises.Update(exercise);
             _context.SaveChanges();
+        }
+
+        // Gets user's current weight from latest health metric record
+        // Returns default 70kg if no weight records found
+        private double GetUserWeight(int userId)
+        {
+            var latestWeight = _context.HealthMetrics
+                .Where(hm => hm.UserId == userId && hm.WeightKg.HasValue)
+                .OrderByDescending(hm => hm.RecordedDate)
+                .FirstOrDefault();
+
+            return latestWeight?.WeightKg ?? 70.0; // Default 70kg if no weight recorded
         }
 
         // Deletes an exercise record
