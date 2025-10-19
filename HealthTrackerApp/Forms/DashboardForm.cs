@@ -207,13 +207,20 @@ namespace HealthTrackerApp.Forms
             reports.ShowDialog();
         }
 
-        private void btnRefresh_Click(object sender, EventArgs e)
+        // Logout and return to login screen
+        private void btnLogout_Click(object sender, EventArgs e)
         {
-            // Refresh all dashboard data
-            LoadBMIStatus();
-            LoadDailySummary();
-            LoadWeeklySummary();
-            MessageBox.Show("Dashboard refreshed!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var result = MessageBox.Show("Are you sure you want to logout?",
+                "Confirm Logout", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                this.Close();
+
+                // Show login form again
+                LoginForm loginForm = new LoginForm();
+                loginForm.Show();
+            }
         }
 
         // Clean up database context when form closes

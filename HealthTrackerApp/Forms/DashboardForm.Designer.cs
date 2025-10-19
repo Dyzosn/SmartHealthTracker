@@ -35,7 +35,7 @@
             this.btnHealthMetrics = new System.Windows.Forms.Button();
             this.btnGoals = new System.Windows.Forms.Button();
             this.btnReports = new System.Windows.Forms.Button();
-            this.btnRefresh = new System.Windows.Forms.Button();
+            this.btnLogout = new System.Windows.Forms.Button();
             this.SuspendLayout();
 
             // lblWelcome
@@ -203,20 +203,20 @@
             this.btnReports.UseVisualStyleBackColor = true;
             this.btnReports.Click += new System.EventHandler(this.btnReports_Click);
 
-            // btnRefresh
-            this.btnRefresh.Location = new System.Drawing.Point(350, 320);
-            this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(150, 40);
-            this.btnRefresh.TabIndex = 20;
-            this.btnRefresh.Text = "Refresh";
-            this.btnRefresh.UseVisualStyleBackColor = true;
-            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+            // btnLogout
+            this.btnLogout.Location = new System.Drawing.Point(350, 320);
+            this.btnLogout.Name = "btnLogout";
+            this.btnLogout.Size = new System.Drawing.Size(150, 40);
+            this.btnLogout.TabIndex = 20;
+            this.btnLogout.Text = "Logout";
+            this.btnLogout.UseVisualStyleBackColor = true;
+            this.btnLogout.Click += new System.EventHandler(this.btnLogout_Click);
 
             // DashboardForm
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(550, 500);
-            this.Controls.Add(this.btnRefresh);
+            this.Controls.Add(this.btnLogout);
             this.Controls.Add(this.btnReports);
             this.Controls.Add(this.btnGoals);
             this.Controls.Add(this.btnHealthMetrics);
@@ -265,6 +265,6 @@
         private System.Windows.Forms.Button btnHealthMetrics;
         private System.Windows.Forms.Button btnGoals;
         private System.Windows.Forms.Button btnReports;
-        private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Button btnLogout;
     }
 }
