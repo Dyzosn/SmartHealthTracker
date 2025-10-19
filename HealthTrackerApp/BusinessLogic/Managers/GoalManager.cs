@@ -141,18 +141,18 @@ namespace HealthTrackerApp.BusinessLogic.Managers
             double progress = CalculateProgress(goal);
 
             if (goal.IsCompleted)
-                return "🎉 Goal achieved! Congratulations!";
+                return "Goal achieved! Congratulations!";
 
             if (progress >= 90)
-                return "💪 Almost there! Keep pushing!";
+                return "Almost there! Keep pushing!";
             else if (progress >= 75)
-                return "🔥 Great progress! You're doing amazing!";
+                return "Great progress! You're doing amazing!";
             else if (progress >= 50)
-                return "👍 Halfway there! Keep it up!";
+                return "Halfway there! Keep it up!";
             else if (progress >= 25)
-                return "📈 Good start! Stay consistent!";
+                return "Good start! Stay consistent!";
             else
-                return "🚀 Let's get started! You can do this!";
+                return "Let's get started! You can do this!";
         }
 
         // Suggests actionable advice based on progress and time remaining
