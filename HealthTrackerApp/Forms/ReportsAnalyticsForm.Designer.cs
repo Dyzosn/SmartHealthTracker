@@ -82,10 +82,10 @@
 
             // lblSummaryStats
             this.lblSummaryStats.AutoSize = true;
-            this.lblSummaryStats.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.lblSummaryStats.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblSummaryStats.Location = new System.Drawing.Point(20, 110);
+            this.lblSummaryStats.MaximumSize = new System.Drawing.Size(530, 0);
             this.lblSummaryStats.Name = "lblSummaryStats";
-            this.lblSummaryStats.Size = new System.Drawing.Size(200, 19);
             this.lblSummaryStats.TabIndex = 6;
             this.lblSummaryStats.Text = "Summary Statistics";
 

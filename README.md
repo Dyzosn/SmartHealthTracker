@@ -200,6 +200,7 @@ HealthTrackerApp/
 │
 ├── Forms/                           # User interface
 │   ├── LoginForm.cs
+│   ├── RegistrationForm.cs
 │   ├── DashboardForm.cs
 │   ├── MealTrackerForm.cs
 │   ├── ExerciseLoggerForm.cs
@@ -209,9 +210,6 @@ HealthTrackerApp/
 │
 ├── Utilities/
 │   └── Constants.cs
-│
-├── Resources/
-│   └── Images/
 │
 └── HealthTrackerApp.Tests/         # Unit tests
     ├── CalculatorTests.cs
@@ -326,10 +324,19 @@ All tests should pass. If any fail, check the test output for details.
 ### First Time Setup
 
 1. Run the application
-2. Click "Register" on login screen
-3. Create account with username, email, and password
-4. Enter basic information (date of birth, height, gender)
-5. Login with your credentials
+2. The application starts with LoginForm
+3. To create a new account:
+   - Enter desired username and password in LoginForm
+   - Click "Register" button
+   - System checks if username is available
+   - If available, RegistrationForm opens automatically
+4. Complete your profile in RegistrationForm:
+   - Email address (required)
+   - Date of Birth (must be at least 10 years old)
+   - Height in metres (e.g., 1.75 for 175cm)
+   - Gender (Male, Female, or Other)
+5. Click "Complete Registration"
+6. Return to LoginForm and login with your new credentials
 
 ### Adding a Meal
 
@@ -394,10 +401,6 @@ All tests should pass. If any fail, check the test output for details.
 - Ensure .NET 9.0 SDK is installed
 
 ## Code Conventions
-
-**Comment Style:**
-- All code comments use British English spelling
-- Examples: initialise, organise, analyse, colour, behaviour
 
 **Naming Conventions:**
 - Classes: PascalCase (BMICalculator, HealthMetric)
