@@ -33,6 +33,11 @@ namespace HealthTrackerApp.Models
         public double CurrentValue { get; set; }
 
         [Required]
+        // Stores the starting value when goal was first created
+        // This allows accurate progress calculation without arbitrary windows
+        public double InitialValue { get; set; }
+
+        [Required]
         // Date when the goal was created
         public DateTime StartDate { get; set; }
 
@@ -56,6 +61,7 @@ namespace HealthTrackerApp.Models
             StartDate = DateTime.Now;
             IsCompleted = false;
             CurrentValue = 0;
+            InitialValue = 0; // Will be set to CurrentValue on creation
         }
     }
 }

@@ -31,6 +31,7 @@ namespace HealthTrackerApp.Services
                 Description = description,
                 TargetValue = targetValue,
                 CurrentValue = currentValue,
+                InitialValue = currentValue, // Store starting value for accurate progress
                 StartDate = DateTime.Now,
                 TargetDate = targetDate,
                 IsCompleted = false

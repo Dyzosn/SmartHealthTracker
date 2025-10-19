@@ -83,7 +83,7 @@ namespace HealthTrackerApp.BusinessLogic.Managers
         }
 
         // Calculates progress as a percentage from 0 to 100
-        // Returns capped value to prevent percentages above 100
+        // Uses InitialValue as starting point for TRUE LINEAR PROGRESS
         public double CalculateProgress(Goal goal)
         {
             if (goal == null) return 0;
@@ -93,76 +93,65 @@ namespace HealthTrackerApp.BusinessLogic.Managers
             switch (goal.GoalType)
             {
                 case GoalType.WeightLoss:
-                    // For weight loss, check if goal is already achieved
+                    // For weight loss: Progress from Initial (higher) to Target (lower)
+                    // Example: Initial=80, Target=75, Current=77
+                    // Progress = (80-77) / (80-75) * 100 = 3/5 * 100 = 60%
+
                     if (goal.CurrentValue <= goal.TargetValue)
-                        return 100.0;
+                        return 100.0; // Achieved!
 
-                    // Use a 10kg window for progress calculation
-                    double lossWindow = 10.0;
-                    double maxLossWeight = goal.TargetValue + lossWindow;
-                    double lossDifference = goal.CurrentValue - goal.TargetValue;
+                    if (goal.CurrentValue >= goal.InitialValue)
+                        return 0.0; // No progress yet (or gained weight)
 
-                    if (lossDifference >= lossWindow)
-                    {
-                        progress = 0;
-                    }
-                    else
-                    {
-                        // As user gets closer to target, progress increases
-                        progress = ((lossWindow - lossDifference) / lossWindow) * 100.0;
-                    }
+                    double totalWeightToLose = goal.InitialValue - goal.TargetValue;
+                    double weightLostSoFar = goal.InitialValue - goal.CurrentValue;
+
+                    progress = totalWeightToLose > 0 ? (weightLostSoFar / totalWeightToLose) * 100.0 : 0;
                     break;
 
                 case GoalType.WeightGain:
                 case GoalType.MuscleGain:
-                    // For gain goals, check if already achieved
+                    // For weight gain: Progress from Initial (lower) to Target (higher)
+                    // Example: Initial=80, Target=85, Current=82
+                    // Progress = (82-80) / (85-80) * 100 = 2/5 * 100 = 40%
+
                     if (goal.CurrentValue >= goal.TargetValue)
-                        return 100.0;
+                        return 100.0; // Achieved!
 
-                    // Use a 10kg window for progress calculation
-                    double gainWindow = 10.0;
-                    double minGainWeight = Math.Max(0, goal.TargetValue - gainWindow);
+                    if (goal.CurrentValue <= goal.InitialValue)
+                        return 0.0; // No progress yet (or lost weight)
 
-                    // If current is at or below minimum, no progress yet
-                    if (goal.CurrentValue <= minGainWeight)
-                    {
-                        progress = 0;
-                    }
-                    else
-                    {
-                        // Calculate progress within the gain window
-                        double gainProgress = goal.CurrentValue - minGainWeight;
-                        double totalGainNeeded = goal.TargetValue - minGainWeight;
-                        progress = totalGainNeeded > 0 ? (gainProgress / totalGainNeeded) * 100.0 : 0;
-                    }
+                    double totalWeightToGain = goal.TargetValue - goal.InitialValue;
+                    double weightGainedSoFar = goal.CurrentValue - goal.InitialValue;
+
+                    progress = totalWeightToGain > 0 ? (weightGainedSoFar / totalWeightToGain) * 100.0 : 0;
                     break;
 
                 case GoalType.CalorieTarget:
-                    // For calorie target, goal is to STAY UNDER the target
-                    // Lower calories = better progress
+                    // For calorie target: Goal is to STAY UNDER target
+                    // Progress from Initial (over target) to Target (at or under)
+                    // Example: Initial=2200, Target=2000, Current=2100
+                    // Progress = (2200-2100) / (2200-2000) * 100 = 100/200 * 100 = 50%
+
                     if (goal.CurrentValue <= goal.TargetValue)
-                        return 100.0; // Successfully staying under target
+                        return 100.0; // Successfully staying under!
 
-                    // Use a 500 calorie window above target for progress
-                    double calorieWindow = 500.0;
-                    double maxCalories = goal.TargetValue + calorieWindow;
-                    double calorieExcess = goal.CurrentValue - goal.TargetValue;
+                    if (goal.CurrentValue >= goal.InitialValue)
+                        return 0.0; // No progress (still at or above initial)
 
-                    if (calorieExcess >= calorieWindow)
-                    {
-                        progress = 0; // Way over target
-                    }
-                    else
-                    {
-                        // Show progress as getting closer to staying under target
-                        progress = ((calorieWindow - calorieExcess) / calorieWindow) * 100.0;
-                    }
+                    double totalCaloriesToReduce = goal.InitialValue - goal.TargetValue;
+                    double caloriesReducedSoFar = goal.InitialValue - goal.CurrentValue;
+
+                    progress = totalCaloriesToReduce > 0 ? (caloriesReducedSoFar / totalCaloriesToReduce) * 100.0 : 0;
                     break;
 
                 case GoalType.ExerciseFrequency:
-                    // For frequency targets, straightforward completion percentage
+                    // For frequency: Simple ratio from 0 to target
+                    // Example: Initial=0, Target=20, Current=8
+                    // Progress = 8/20 * 100 = 40%
+
                     if (goal.CurrentValue >= goal.TargetValue)
-                        return 100.0;
+                        return 100.0; // Target met!
 
                     progress = goal.TargetValue > 0 ? (goal.CurrentValue / goal.TargetValue) * 100.0 : 0;
                     break;
@@ -172,8 +161,8 @@ namespace HealthTrackerApp.BusinessLogic.Managers
                     break;
             }
 
-            // Cap at 100%
-            return Math.Min(progress, 100);
+            // Cap between 0-100%
+            return Math.Max(0, Math.Min(progress, 100));
         }
 
         // Returns number of days remaining until goal deadline
