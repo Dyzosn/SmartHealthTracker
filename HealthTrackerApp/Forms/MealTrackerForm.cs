@@ -6,17 +6,19 @@ using HealthTrackerApp.Data;
 using HealthTrackerApp.Models;
 using HealthTrackerApp.Models.Enums;
 using HealthTrackerApp.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrackerApp.Forms
 {
-    // Meal tracking form for logging food intake and nutrition
-    // Integrates with USDA API for food search and nutrition data
+    // Meal tracking form for searching foods via USDA API and logging meals
+    // Handles food search, portion calculation, and meal history
     public partial class MealTrackerForm : Form
     {
         private readonly HealthTrackerContext _context;
         private readonly MealService _mealService;
         private readonly USDAFoodDataService _usdaService;
         private readonly User _currentUser;
+
         private List<Food> _searchResults;
         private Food _selectedFood;
         private Meal _currentMeal;
@@ -34,23 +36,30 @@ namespace HealthTrackerApp.Forms
 
         private void MealTrackerForm_Load(object sender, EventArgs e)
         {
-            // Populate meal type combo box
+            // Populate meal type combo box with enum values
             cboMealType.Items.AddRange(new string[] { "Breakfast", "Lunch", "Dinner", "Snack" });
-            cboMealType.SelectedIndex = 0;
+            cboMealType.SelectedIndex = 2;
 
-            // Set default meal name
+            // Set default date to current date and time
+            dtpMealDate.Value = DateTime.Now;
             txtMealName.Text = $"{cboMealType.SelectedItem} - {DateTime.Now:dd/MM/yyyy}";
 
-            LoadTodaysMeals();
-            LoadMealHistory();
+            // Update meal name when meal type changes
+            cboMealType.SelectedIndexChanged += (s, args) =>
+            {
+                txtMealName.Text = $"{cboMealType.SelectedItem} - {dtpMealDate.Value:dd/MM/yyyy}";
+            };
 
-            // Wire up event handlers
+            // Wire up button events
             btnSearch.Click += btnSearch_Click;
             btnAddFood.Click += btnAddFood_Click;
             btnSaveMeal.Click += btnSaveMeal_Click;
             btnDeleteMeal.Click += btnDeleteMeal_Click;
             dgvSearchResults.SelectionChanged += dgvSearchResults_SelectionChanged;
             dgvMealHistory.SelectionChanged += dgvMealHistory_SelectionChanged;
+
+            LoadTodaysMeals();
+            LoadMealHistory();
         }
 
         // Search foods using USDA API
@@ -65,11 +74,11 @@ namespace HealthTrackerApp.Forms
                     return;
                 }
 
+                // Show loading message to user
                 lblSearchStatus.Text = "Searching...";
                 btnSearch.Enabled = false;
-                dgvSearchResults.Rows.Clear();
 
-                // Call USDA API service
+                // Call USDA API service to get food results
                 _searchResults = await _usdaService.SearchFoodsAsync(query, 20);
 
                 if (_searchResults.Count == 0)
@@ -148,19 +157,56 @@ namespace HealthTrackerApp.Forms
 
             try
             {
-                // Save food to database if not already saved
-                var existingFood = _context.Foods.FirstOrDefault(f => f.FdcId == _selectedFood.FdcId);
+                // Check if food already exists in database to avoid duplicates
+                // Using AsNoTracking to prevent entity tracking issues when querying
+                var existingFood = _context.Foods
+                    .AsNoTracking()
+                    .FirstOrDefault(f => f.FdcId == _selectedFood.FdcId);
+
+                Food foodToUse;
                 if (existingFood == null)
                 {
-                    _context.Foods.Add(_selectedFood);
+                    // Food doesn't exist in database yet, need to add it first
+                    // Create new Food object with all properties from selected food
+                    // IMPORTANT: Set default values for nullable fields to avoid NOT NULL constraint errors
+                    foodToUse = new Food
+                    {
+                        FdcId = _selectedFood.FdcId,
+                        FoodName = _selectedFood.FoodName ?? "Unknown Food",
+                        DataType = !string.IsNullOrWhiteSpace(_selectedFood.DataType)
+                            ? _selectedFood.DataType
+                            : "Unknown",
+                        Category = !string.IsNullOrWhiteSpace(_selectedFood.Category)
+                            ? _selectedFood.Category
+                            : "Uncategorised",
+                        CaloriesPer100g = _selectedFood.CaloriesPer100g,
+                        ProteinPer100g = _selectedFood.ProteinPer100g,
+                        CarbsPer100g = _selectedFood.CarbsPer100g,
+                        FatsPer100g = _selectedFood.FatsPer100g,
+                        ServingSize = _selectedFood.ServingSize,
+                        ServingUnit = !string.IsNullOrWhiteSpace(_selectedFood.ServingUnit)
+                            ? _selectedFood.ServingUnit
+                            : "g",
+                        HouseholdServing = !string.IsNullOrWhiteSpace(_selectedFood.HouseholdServing)
+                            ? _selectedFood.HouseholdServing
+                            : "1 serving",
+                        IsCustom = false,
+                        DateAdded = DateTime.Now
+                    };
+
+                    _context.Foods.Add(foodToUse);
                     _context.SaveChanges();
+
+                    // Reload food from database to get the generated FoodId
+                    foodToUse = _context.Foods.First(f => f.FdcId == _selectedFood.FdcId);
                 }
                 else
                 {
-                    _selectedFood = existingFood;
+                    // Food already exists, use the existing one
+                    foodToUse = existingFood;
                 }
 
-                // Create meal if first food being added
+                // Create meal if this is first food being added
                 if (_currentMeal == null)
                 {
                     var mealType = (MealType)Enum.Parse(typeof(MealType), cboMealType.SelectedItem.ToString());
@@ -172,13 +218,13 @@ namespace HealthTrackerApp.Forms
                     );
                 }
 
-                // Add food to meal
-                _mealService.AddFoodToMeal(_currentMeal.MealId, _selectedFood, portionSize, "g");
+                // Add food to meal with calculated nutrition based on portion
+                _mealService.AddFoodToMeal(_currentMeal.MealId, foodToUse, portionSize, "g");
 
-                // Refresh current meal display
+                // Refresh current meal display to show updated totals
                 LoadCurrentMeal();
 
-                // Clear selections
+                // Clear input fields for next entry
                 txtPortionSize.Clear();
                 lblSelectedFood.Text = "Selected: None";
 
@@ -186,7 +232,13 @@ namespace HealthTrackerApp.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error adding food: {ex.Message}", "Error");
+                // Show detailed error message including inner exception for troubleshooting
+                string errorMessage = $"Error adding food: {ex.Message}";
+                if (ex.InnerException != null)
+                {
+                    errorMessage += $"\n\nInner exception: {ex.InnerException.Message}";
+                }
+                MessageBox.Show(errorMessage, "Error");
             }
         }
 
@@ -195,9 +247,15 @@ namespace HealthTrackerApp.Forms
         {
             if (_currentMeal == null) return;
 
-            // Refresh meal from database to get updated totals
+            // Detach current meal entity to avoid tracking conflicts when reloading
+            _context.Entry(_currentMeal).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+
+            // Reload meal from database to get updated nutrition totals
             _currentMeal = _context.Meals.Find(_currentMeal.MealId);
 
+            if (_currentMeal == null) return;
+
+            // Setup DataGridView columns if not already created
             dgvCurrentMeal.Rows.Clear();
             if (dgvCurrentMeal.Columns.Count == 0)
             {
@@ -209,28 +267,36 @@ namespace HealthTrackerApp.Forms
                 dgvCurrentMeal.Columns.Add("Fats", "Fats");
             }
 
+            // Get all foods in current meal from database
             var mealFoods = _mealService.GetMealFoods(_currentMeal.MealId);
             foreach (var mf in mealFoods)
             {
-                var food = _context.Foods.Find(mf.FoodId);
-                dgvCurrentMeal.Rows.Add(
-                    food.FoodName,
-                    $"{mf.PortionSize:F0}g",
-                    $"{mf.Calories:F0}",
-                    $"{mf.Protein:F1}g",
-                    $"{mf.Carbs:F1}g",
-                    $"{mf.Fats:F1}g"
-                );
+                // Use AsNoTracking for read-only food lookup to avoid tracking issues
+                var food = _context.Foods
+                    .AsNoTracking()
+                    .FirstOrDefault(f => f.FoodId == mf.FoodId);
+
+                if (food != null)
+                {
+                    dgvCurrentMeal.Rows.Add(
+                        food.FoodName,
+                        $"{mf.PortionSize:F0}g",
+                        $"{mf.Calories:F0}",
+                        $"{mf.Protein:F1}g",
+                        $"{mf.Carbs:F1}g",
+                        $"{mf.Fats:F1}g"
+                    );
+                }
             }
 
-            // Update meal summary
+            // Display meal nutrition summary
             lblMealSummary.Text = $"Total: {_currentMeal.TotalCalories:F0} kcal | " +
                                  $"Protein: {_currentMeal.Protein:F1}g | " +
                                  $"Carbs: {_currentMeal.Carbs:F1}g | " +
                                  $"Fats: {_currentMeal.Fats:F1}g";
         }
 
-        // Save and finalize current meal
+        // Save and finalise current meal
         private void btnSaveMeal_Click(object sender, EventArgs e)
         {
             if (_currentMeal == null)
@@ -241,17 +307,18 @@ namespace HealthTrackerApp.Forms
 
             MessageBox.Show("Meal saved successfully!", "Success");
 
-            // Reset for new meal
+            // Reset form for new meal entry
             _currentMeal = null;
             dgvCurrentMeal.Rows.Clear();
             lblMealSummary.Text = "Total: 0 kcal";
             txtMealName.Text = $"{cboMealType.SelectedItem} - {DateTime.Now:dd/MM/yyyy}";
 
+            // Refresh today's summary and history
             LoadTodaysMeals();
             LoadMealHistory();
         }
 
-        // Load today's meals
+        // Load today's meals summary
         private void LoadTodaysMeals()
         {
             var todayMeals = _mealService.GetMealsByDate(_currentUser.UserId, DateTime.Today);
@@ -272,6 +339,7 @@ namespace HealthTrackerApp.Forms
                 dgvMealHistory.Columns.Add("Calories", "Calories");
             }
 
+            // Get last 20 meals for display
             var meals = _mealService.GetUserMeals(_currentUser.UserId).Take(20).ToList();
             foreach (var meal in meals)
             {
@@ -302,35 +370,47 @@ namespace HealthTrackerApp.Forms
                 {
                     int selectedIndex = dgvMealHistory.SelectedRows[0].Index;
                     var meals = _mealService.GetUserMeals(_currentUser.UserId).Take(20).ToList();
-                    var mealToDelete = meals[selectedIndex];
 
-                    _mealService.DeleteMeal(mealToDelete.MealId);
-                    LoadMealHistory();
-                    LoadTodaysMeals();
+                    if (selectedIndex < meals.Count)
+                    {
+                        var mealToDelete = meals[selectedIndex];
 
-                    MessageBox.Show("Meal deleted", "Success");
+                        // Clear entity tracker before delete to prevent conflicts
+                        _context.ChangeTracker.Clear();
+                        _mealService.DeleteMeal(mealToDelete.MealId);
+
+                        // Refresh displays after deletion
+                        LoadMealHistory();
+                        LoadTodaysMeals();
+
+                        MessageBox.Show("Meal deleted", "Success");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error deleting meal: {ex.Message}", "Error");
+                    MessageBox.Show($"Error deleting meal: {ex.Message}\n\nInner exception: {ex.InnerException?.Message}", "Error");
                 }
             }
         }
 
-        // View meal details when selected
+        // View meal details when selected in history
         private void dgvMealHistory_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvMealHistory.SelectedRows.Count > 0)
             {
                 int selectedIndex = dgvMealHistory.SelectedRows[0].Index;
                 var meals = _mealService.GetUserMeals(_currentUser.UserId).Take(20).ToList();
-                var selectedMeal = meals[selectedIndex];
 
-                var mealFoods = _mealService.GetMealFoods(selectedMeal.MealId);
-                lblMealDetails.Text = $"Foods in meal: {mealFoods.Count}";
+                if (selectedIndex < meals.Count)
+                {
+                    var selectedMeal = meals[selectedIndex];
+                    var mealFoods = _mealService.GetMealFoods(selectedMeal.MealId);
+                    lblMealDetails.Text = $"Foods in meal: {mealFoods.Count}";
+                }
             }
         }
 
+        // Clean up database context when form closes
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             base.OnFormClosing(e);

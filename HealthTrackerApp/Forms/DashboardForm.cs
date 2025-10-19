@@ -3,72 +3,69 @@ using System.Linq;
 using System.Windows.Forms;
 using HealthTrackerApp.Data;
 using HealthTrackerApp.Models;
-using HealthTrackerApp.Utilities;
+using HealthTrackerApp.Services;
 
 namespace HealthTrackerApp.Forms
 {
-    // Main dashboard form - central hub of the application
-    // Displays user overview including BMI, daily calories, and quick stats
+    // Main dashboard form showing health summary and navigation
+    // Displays BMI status, daily nutrition, weekly statistics, and navigation buttons
     public partial class DashboardForm : Form
     {
-        private readonly HealthTrackerContext _context;
         private readonly User _currentUser;
+        private readonly HealthTrackerContext _context;
+        private readonly HealthMetricService _healthMetricService;
+        private readonly LoginForm _loginForm;
 
-        public DashboardForm(User user)
+        // Constructor accepts user and login form reference for logout functionality
+        public DashboardForm(User user, LoginForm loginForm)
         {
             InitializeComponent();
             _currentUser = user;
+            _loginForm = loginForm;
             _context = new HealthTrackerContext();
+            _healthMetricService = new HealthMetricService(_context);
 
-            // Load dashboard data when form loads
             this.Load += DashboardForm_Load;
         }
 
         private void DashboardForm_Load(object sender, EventArgs e)
         {
-            // Display user welcome message
-            lblWelcome.Text = $"Welcome back, {_currentUser.Username}!";
+            // Display welcome message with username
+            lblWelcome.Text = $"Welcome, {_currentUser.Username}!";
 
-            // Load and display current statistics
+            // Load all dashboard data
             LoadBMIStatus();
             LoadDailySummary();
             LoadWeeklySummary();
         }
 
-        // Load and display current BMI status with colour-coded category
+        // Calculate and display current BMI status with colour coding
         private void LoadBMIStatus()
         {
             // Get latest weight record from database
-            var latestWeight = _context.HealthMetrics
-                .Where(h => h.UserId == _currentUser.UserId && h.MetricType == "Weight")
-                .OrderByDescending(h => h.RecordedDate)
-                .FirstOrDefault();
+            var latestWeight = _healthMetricService.GetLatestHealthMetric(_currentUser.UserId, "Weight");
 
             if (latestWeight != null && latestWeight.WeightKg.HasValue)
             {
-                // Calculate BMI using user's height and latest weight
-                double heightInMetres = _currentUser.Height;
-                double weightKg = latestWeight.WeightKg.Value;
-                double bmi = weightKg / (heightInMetres * heightInMetres);
+                double weight = latestWeight.WeightKg.Value;
+                double height = _currentUser.Height;
+                double bmi = weight / (height * height);
 
-                // Display BMI value
-                lblBMIValue.Text = $"{bmi:F1}";
-
-                // Determine BMI category and set appropriate colour
+                // Determine BMI category and colour based on WHO standards
                 string category;
                 System.Drawing.Color categoryColour;
 
-                if (bmi < Constants.BMI_UNDERWEIGHT)
+                if (bmi < 18.5)
                 {
                     category = "Underweight";
                     categoryColour = System.Drawing.Color.Blue;
                 }
-                else if (bmi < Constants.BMI_NORMAL)
+                else if (bmi < 25.0)
                 {
                     category = "Normal";
                     categoryColour = System.Drawing.Color.Green;
                 }
-                else if (bmi < Constants.BMI_OVERWEIGHT)
+                else if (bmi < 30.0)
                 {
                     category = "Overweight";
                     categoryColour = System.Drawing.Color.Orange;
@@ -79,85 +76,90 @@ namespace HealthTrackerApp.Forms
                     categoryColour = System.Drawing.Color.Red;
                 }
 
+                // Display BMI value and category in separate labels
+                lblBMIValue.Text = $"BMI: {bmi:F1}";
                 lblBMICategory.Text = category;
                 lblBMICategory.ForeColor = categoryColour;
-                lblCurrentWeight.Text = $"Current Weight: {weightKg:F1} kg";
+                lblCurrentWeight.Text = $"Weight: {weight:F1} kg";
             }
             else
             {
-                // No weight data available
-                lblBMIValue.Text = "N/A";
-                lblBMICategory.Text = "No data";
-                lblCurrentWeight.Text = "Please log your weight";
+                lblBMIValue.Text = "BMI: N/A";
+                lblBMICategory.Text = "No weight data";
+                lblCurrentWeight.Text = "Weight: N/A";
             }
         }
 
-        // Load today's calorie intake summary
+        // Load today's nutrition summary and calorie progress
         private void LoadDailySummary()
         {
             DateTime today = DateTime.Today;
 
-            // Get today's meals and calculate total calories
-            var todaysMeals = _context.Meals
+            // Get all meals logged today using LINQ
+            var todayMeals = _context.Meals
                 .Where(m => m.UserId == _currentUser.UserId && m.MealDate.Date == today)
                 .ToList();
 
-            double totalCalories = todaysMeals.Sum(m => m.TotalCalories);
-            double totalProtein = todaysMeals.Sum(m => m.Protein);
-            double totalCarbs = todaysMeals.Sum(m => m.Carbs);
-            double totalFats = todaysMeals.Sum(m => m.Fats);
-
-            // Get today's exercises and calculate calories burned
-            var todaysExercises = _context.Exercises
+            // Get all exercises logged today using LINQ
+            var todayExercises = _context.Exercises
                 .Where(e => e.UserId == _currentUser.UserId && e.ExerciseDate.Date == today)
                 .ToList();
 
-            double caloriesBurned = todaysExercises.Sum(e => e.CaloriesBurned);
+            // Calculate calorie totals
+            double caloriesConsumed = todayMeals.Sum(m => m.TotalCalories);
+            double caloriesBurned = todayExercises.Sum(e => e.CaloriesBurned);
+            double netCalories = caloriesConsumed - caloriesBurned;
 
-            // Display daily summary
-            lblCaloriesConsumed.Text = $"{totalCalories:F0} kcal";
-            lblCaloriesBurned.Text = $"{caloriesBurned:F0} kcal";
+            // Calculate macronutrient totals
+            double protein = todayMeals.Sum(m => m.Protein);
+            double carbs = todayMeals.Sum(m => m.Carbs);
+            double fats = todayMeals.Sum(m => m.Fats);
 
-            // Calculate net calories (consumed - burned)
-            double netCalories = totalCalories - caloriesBurned;
-            lblNetCalories.Text = $"{netCalories:F0} kcal";
+            // Display calorie information
+            lblCaloriesConsumed.Text = $"Consumed: {caloriesConsumed:F0} kcal";
+            lblCaloriesBurned.Text = $"Burned: {caloriesBurned:F0} kcal";
+            lblNetCalories.Text = $"Net: {netCalories:F0} kcal";
 
             // Display macronutrient breakdown
-            lblProtein.Text = $"Protein: {totalProtein:F1}g";
-            lblCarbs.Text = $"Carbs: {totalCarbs:F1}g";
-            lblFats.Text = $"Fats: {totalFats:F1}g";
+            lblProtein.Text = $"Protein: {protein:F0}g";
+            lblCarbs.Text = $"Carbs: {carbs:F0}g";
+            lblFats.Text = $"Fats: {fats:F0}g";
 
-            // Calculate progress towards daily target
-            double targetCalories = Constants.DEFAULT_CALORIE_TARGET;
-            double progress = (totalCalories / targetCalories) * 100;
-
-            // Update progress bar (max 100%)
-            if (progress > 100)
-                progress = 100;
+            // Update progress bar for daily calorie target
+            double targetCalories = 2000;
+            double progress = (caloriesConsumed / targetCalories) * 100;
+            if (progress > 100) progress = 100;
 
             progressBarCalories.Value = (int)progress;
-            lblCalorieProgress.Text = $"{progress:F0}% of daily target";
+            lblCalorieProgress.Text = $"{caloriesConsumed:F0} / {targetCalories:F0} kcal";
         }
 
         // Load weekly summary statistics
         private void LoadWeeklySummary()
         {
-            DateTime weekStart = DateTime.Today.AddDays(-7);
+            // Calculate start and end of current week
+            DateTime startOfWeek = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
+            DateTime endOfWeek = startOfWeek.AddDays(7);
 
-            // Get meals from last 7 days
+            // Get all meals this week using LINQ
             var weeklyMeals = _context.Meals
-                .Where(m => m.UserId == _currentUser.UserId && m.MealDate >= weekStart)
+                .Where(m => m.UserId == _currentUser.UserId &&
+                           m.MealDate >= startOfWeek &&
+                           m.MealDate < endOfWeek)
                 .ToList();
 
-            // Get exercises from last 7 days
+            // Get all exercises this week using LINQ
             var weeklyExercises = _context.Exercises
-                .Where(e => e.UserId == _currentUser.UserId && e.ExerciseDate >= weekStart)
+                .Where(e => e.UserId == _currentUser.UserId &&
+                           e.ExerciseDate >= startOfWeek &&
+                           e.ExerciseDate < endOfWeek)
                 .ToList();
 
             // Calculate weekly statistics
             int mealsLogged = weeklyMeals.Count;
             int workoutsCompleted = weeklyExercises.Count;
-            double avgDailyCalories = weeklyMeals.Any() ? weeklyMeals.Average(m => m.TotalCalories) : 0;
+            double avgDailyCalories = weeklyMeals.Count > 0 ?
+                weeklyMeals.Average(m => m.TotalCalories) : 0;
 
             // Display weekly summary
             lblWeeklyMeals.Text = $"Meals Logged: {mealsLogged}";
@@ -168,6 +170,7 @@ namespace HealthTrackerApp.Forms
         // Button click handlers for navigation to other forms
         private void btnMealTracker_Click(object sender, EventArgs e)
         {
+            // Open Meal Tracker form as modal dialogue
             MealTrackerForm mealTracker = new MealTrackerForm(_currentUser);
             mealTracker.ShowDialog();
 
@@ -185,7 +188,7 @@ namespace HealthTrackerApp.Forms
 
         private void btnHealthMetrics_Click(object sender, EventArgs e)
         {
-            // Open Health Metrics form
+            // Open Health Metrics form as modal dialogue
             HealthMetricsForm healthMetricsForm = new HealthMetricsForm(_currentUser);
             healthMetricsForm.ShowDialog();
 
@@ -203,6 +206,7 @@ namespace HealthTrackerApp.Forms
 
         private void btnReports_Click(object sender, EventArgs e)
         {
+            // Open Reports & Analytics form as modal dialogue
             ReportsAnalyticsForm reports = new ReportsAnalyticsForm(_currentUser);
             reports.ShowDialog();
         }
@@ -215,11 +219,14 @@ namespace HealthTrackerApp.Forms
 
             if (result == DialogResult.Yes)
             {
-                this.Close();
+                // Hide dashboard first to prevent visual flicker
+                this.Hide();
 
-                // Show login form again
-                LoginForm loginForm = new LoginForm();
-                loginForm.Show();
+                // Show login form again for next user
+                _loginForm.ShowLoginAgain();
+
+                // Close dashboard now that login form is visible
+                this.Close();
             }
         }
 
