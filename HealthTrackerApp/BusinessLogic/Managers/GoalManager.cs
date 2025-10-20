@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Runtime.Intrinsics.Arm;
 using HealthTrackerApp.BusinessLogic.Calculators;
 using HealthTrackerApp.BusinessLogic.Interfaces;
 using HealthTrackerApp.BusinessLogic.Managers;
 using HealthTrackerApp.Models;
 using HealthTrackerApp.Models.Enums;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HealthTrackerApp.BusinessLogic.Managers
 {
