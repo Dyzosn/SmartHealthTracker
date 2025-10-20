@@ -115,7 +115,7 @@ Microsoft.EntityFrameworkCore.Sqlite (9.0.0)
 Microsoft.EntityFrameworkCore.Tools (9.0.0)
 Microsoft.EntityFrameworkCore.Design (9.0.0)
 Newtonsoft.Json (13.0.3)
-NUnit (4.3.0)
+NUnit (4.4.0)
 NUnit3TestAdapter (5.2.0)
 Microsoft.NET.Test.Sdk (18.0.0)
 ```
